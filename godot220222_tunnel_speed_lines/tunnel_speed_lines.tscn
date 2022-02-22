@@ -1,0 +1,88 @@
+[gd_scene load_steps=7 format=2]
+
+[ext_resource path="res://icon.png" type="Texture" id=1]
+
+[sub_resource type="Shader" id=10]
+code = "shader_type particles;
+
+uniform float tube_radius : hint_range( 0.0, 10.0 ) = 2.0;
+uniform float tube_length : hint_range( 0.0, 100.0 ) = 50.0;
+
+float rand_from_seed(in uint seed) {
+	int k;
+	int s = int(seed);
+	if (s == 0)
+	s = 305420679;
+	k = s / 127773;
+	s = 16807 * (s - k * 127773) - 2836 * k;
+	if (s < 0)
+	s += 2147483647;
+	seed = uint(s);
+	return float(seed % uint(65536)) / 65535.0;
+}
+
+uint hash(uint x) {
+	x = ((x >> uint(16)) ^ x) * uint(73244475);
+	x = ((x >> uint(16)) ^ x) * uint(73244475);
+	x = (x >> uint(16)) ^ x;
+	return x;
+}
+
+void vertex() {
+
+	if (RESTART) {
+		uint alt_seed1 = hash(NUMBER + uint(1) + RANDOM_SEED);
+		// set particle position in model space with tube_radius and tube_length
+		float angle_rand = rand_from_seed( alt_seed1 ) * 6.283185;
+		TRANSFORM[3].x = tube_length;
+		TRANSFORM[3].y = sin( angle_rand ) * tube_radius;
+		TRANSFORM[3].z = cos( angle_rand ) * tube_radius;
+		// calculate VELOCITY in negative x direction
+		VELOCITY.x = -tube_length / LIFETIME;
+		// calculate 2D normal and send it to \"Pass 1\" shader with CUSTOM variable
+		CUSTOM.yz = vec2( sin( angle_rand - 1.570796 ), cos( angle_rand - 1.570796 ) );
+	}
+}"
+
+[sub_resource type="ShaderMaterial" id=11]
+shader = SubResource( 10 )
+shader_param/tube_radius = 2.0
+shader_param/tube_length = 50.0
+
+[sub_resource type="Shader" id=12]
+code = "shader_type spatial;
+
+render_mode unshaded;
+uniform sampler2D texture_albedo : hint_albedo;
+
+void vertex() {
+	// caculate world_y: get local 2D normal from particle shader variable CUSTOM.yz and transform it from model space to world space
+	vec4 world_y = WORLD_MATRIX * vec4( 0.0, INSTANCE_CUSTOM.y, INSTANCE_CUSTOM.z, 0.0);
+	// calculate world_z by the cross product of WORLD_MATRIX[0] ( = world_x) and world_y
+	vec4 world_z = vec4( cross( WORLD_MATRIX[0].xyz, world_y.xyz ), 0.0 );
+	// calculate model space to view space
+	MODELVIEW_MATRIX = INV_CAMERA_MATRIX * mat4( WORLD_MATRIX[0], world_y, world_z, WORLD_MATRIX[3] );
+}
+
+void fragment() {
+	ALBEDO = texture( texture_albedo, UV ).rgb;
+}"
+
+[sub_resource type="ShaderMaterial" id=13]
+shader = SubResource( 12 )
+shader_param/texture_albedo = ExtResource( 1 )
+
+[sub_resource type="QuadMesh" id=14]
+material = SubResource( 13 )
+size = Vector2( 3, 0.4 )
+
+[node name="Tunel_Speed_Lines" type="Particles"]
+cast_shadow = 0
+amount = 200
+lifetime = 2.0
+preprocess = 2.0
+process_material = SubResource( 11 )
+draw_pass_1 = SubResource( 14 )
+
+[node name="Camera" type="Camera" parent="."]
+transform = Transform( -4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 0, 0, 0 )
