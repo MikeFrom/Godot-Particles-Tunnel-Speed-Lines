@@ -5,8 +5,8 @@
 [sub_resource type="Shader" id=10]
 code = "shader_type particles;
 
-uniform float tube_radius : hint_range( 0.0, 10.0 ) = 2.0;
-uniform float tube_length : hint_range( 0.0, 100.0 ) = 50.0;
+uniform float tunnel_radius : hint_range( 0.0, 10.0 ) = 2.0;
+uniform float tunnel_length : hint_range( 0.0, 100.0 ) = 50.0;
 
 float rand_from_seed(in uint seed) {
 	int k;
@@ -32,13 +32,13 @@ void vertex() {
 
 	if (RESTART) {
 		uint alt_seed1 = hash(NUMBER + uint(1) + RANDOM_SEED);
-		// set particle position in model space with tube_radius and tube_length
+		// set particle position in model space with tunnel_radius and tunnel_length
 		float angle_rand = rand_from_seed( alt_seed1 ) * 6.283185;
-		TRANSFORM[3].x = tube_length;
-		TRANSFORM[3].y = sin( angle_rand ) * tube_radius;
-		TRANSFORM[3].z = cos( angle_rand ) * tube_radius;
+		TRANSFORM[3].x = tunnel_length;
+		TRANSFORM[3].y = sin( angle_rand ) * tunnel_radius;
+		TRANSFORM[3].z = cos( angle_rand ) * tunnel_radius;
 		// calculate VELOCITY in negative x direction
-		VELOCITY.x = -tube_length / LIFETIME;
+		VELOCITY.x = -tunnel_length / LIFETIME;
 		// calculate 2D normal and send it to \"Pass 1\" shader with CUSTOM variable
 		CUSTOM.yz = vec2( sin( angle_rand - 1.570796 ), cos( angle_rand - 1.570796 ) );
 	}
@@ -46,8 +46,8 @@ void vertex() {
 
 [sub_resource type="ShaderMaterial" id=11]
 shader = SubResource( 10 )
-shader_param/tube_radius = 2.0
-shader_param/tube_length = 50.0
+shader_param/tunnel_radius = 2.0
+shader_param/tunnel_length = 50.0
 
 [sub_resource type="Shader" id=12]
 code = "shader_type spatial;
