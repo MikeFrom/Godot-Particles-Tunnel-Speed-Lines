@@ -1,6 +1,4 @@
 # Godot-Particles-Tunnel-Speed-Lines
-Godot Particles Tunnel Speed Lines
-
 
 This is a 3D Particles Shader done in Godot 3.4.stable, to draw Tunnel Speed Lines.
 
