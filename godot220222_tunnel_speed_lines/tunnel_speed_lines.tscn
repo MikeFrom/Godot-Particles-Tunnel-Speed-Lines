@@ -66,6 +66,7 @@ void vertex() {
 
 void fragment() {
 	ALBEDO = texture( texture_albedo, UV ).rgb;
+	ALPHA = texture( texture_albedo, UV ).a;	
 }"
 
 [sub_resource type="ShaderMaterial" id=13]
