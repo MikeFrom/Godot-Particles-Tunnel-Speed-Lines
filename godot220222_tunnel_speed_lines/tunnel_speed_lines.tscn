@@ -77,7 +77,7 @@ shader_param/texture_albedo = ExtResource( 1 )
 material = SubResource( 13 )
 size = Vector2( 3, 0.4 )
 
-[node name="Tunel_Speed_Lines" type="Particles"]
+[node name="Tunnel_Speed_Lines" type="Particles"]
 cast_shadow = 0
 amount = 200
 lifetime = 2.0
